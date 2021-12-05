@@ -1,0 +1,456 @@
+*choosy.txt*  Visually select windows and run commands
+
+==============================================================================
+CONTENTS
+    1. Introduction.............................................|choosy-intro|
+        1.1. Features........................................|choosy-features|
+        1.2. Requirements................................|choosy-requirements|
+        1.3. Global mappings.................................|choosy-mappings|
+        1.4. NERDTree mappings......................|choosy-nerdtree-mappings|
+    2. Usage....................................................|choosy-usage|
+        2.1. Examples........................................|choosy-examples|
+    3. Choosy command.........................................|choosy-command|
+    4. Choosy choosewin function...................|choosy-choosewin-function|
+    5. Options................................................|choosy-options|
+        5.1. Choosy-specific options.................|choosy-specific-options|
+        5.2. Action options............................|choosy-action-options|
+        5.3. Popup options..............................|choosy-popup-options|
+    6. Choosy variables.....................................|choosy-variables|
+        6.1. Choosy substitutions.......................|choosy-substitutions|
+    7. Debugging Choosy.....................................|choosy-debugging|
+        7.1. Debug info....................................|choosy-debug-info|
+    8. Choosy licence.........................................|choosy-licence|
+
+
+==============================================================================
+1. Introduction                                                 *choosy-intro*
+
+  This is a simple Vim plugin for quickly selecting windows and then performing
+  actions on them. It was inspired by https://github.com/t9md/vim-choosewin but
+  takes the philosophy of allowing the user to specify the actions to take on
+  the chosen window. It's also not as compatible as vim-choosewin, because it
+  requires the popup window feature from Vim 8.1 and up.
+
+
+1.1. Features                                                *choosy-features*
+
+  When run, Choosy displays a popup at the center of each window. Each popup has
+  a letter. To choose the window, type the given letter. Choosy closes all of
+  the popups it opened and executes an action.
+
+  What actions? Pretty much anything you like. Choosy comes with a number of
+  example actions (see |choosy-examples|) such as jumping to a window, splitting
+  a window, closing a window, or swapping buffers between windows. But part of
+  the power of Choosy is that you can easily set up your own actions - see
+  (|choosy-customizing|).
+
+
+1.2. Requirements                                        *choosy-requirements*
+
+  Choosy requires a recent Vim which supports popup windows (|popup_create|)
+  and |optional-function-argument|s.
+
+  Choosy has not been tested on versions < 8.1 (patch 2110), nor on nvim.
+
+1.3. Global mappings                                         *choosy-mappings*
+
+  Choosy defaults to a set of mappings; to disable them, set
+  `g:choosy_no_mappings` to `v:true`:  >
+
+    let g:choosy_no_mappings = v:true
+<
+
+  The mappings without |<Leader>| are defined as follows: >
+
+    -    Switch windows
+<
+  The other default mappings start with <leader>cw ("choose window") followed
+  by one of: >
+
+    h    Split horizontally
+    v    Split vertically
+    c    Close window
+    s    Swap buffers, cursor follows current buffer
+    S    Swap buffers, cursor stays in current window
+<
+  These are defined in `plugin/choosy.vim` as follows: >
+
+    Mapping        Action
+    -----------    ------------------------
+    -              <Plug>(choosy-switch)    
+    <leader>cwh    <Plug>(choosy-hsplit)    
+    <leader>cwv    <Plug>(choosy-vsplit)    
+    <leader>cwc    <Plug>(choosy-close)     
+    <leader>cws    <Plug>(choosy-swap)      
+    <leader>cwS    <Plug>(choosy-swap-stay) 
+<
+
+1.4. NERDTree mappings                              *choosy-nerdtree-mappings*
+
+  If NERDTree is installed, an additional set of mappings are available to
+  open files from NERDTree in a chosen window. To disable them, set
+  `g:choosy_no_nerdtree_mappings` to `v:true`: >
+
+    let g:choosy_no_nerdtree_mappings = v:true
+<
+
+  The mappings are enabled only in the NERDTree window, and start with
+  <leader>co ("choose open") followed by one of: >
+
+    w    Open in the chosen window
+    h    Open in a horizontal split of the chosen window
+    v    Open in a vertical split of the chosen window
+<
+
+==============================================================================
+2. Usage                                                        *choosy-usage*
+
+  The basic idea behind using Choosy is that you define an action to take on a
+  chosen window. When you invoke Choosy, you tell it what action to do, and it
+  in executes that action, providing it with data about the selected window.
+  Let's look at some examples.
+
+
+2.1. Examples                                                *choosy-examples*
+
+  The simplest example is to switch to another window. If you kept the default
+  mappings (|g:choosy_no_mappings|), hit `-`, then pick a window. This command
+  is defined in `plugin/choosy.vim` as follows: >
+
+    nnoremap <Plug>(choosy-switch) :Choosy {win.winnr}wincmd w<cr>
+<
+
+  The odd thing here is the set of curly braces in the command. The braces are a
+  simple text-substitution format that allow the command to know which window
+  was picked. See |choosy-variables| for a full list.
+
+  Another simple example splits the chosen window without switching away from
+  the current one: >
+
+    nnoremap <silent> <plug>(choosy-hsplit) :Choosy call win_execute({win.winid}, "sp")<cr>
+<
+
+  Several more example mappings can be found in `plugin/choosy.vim`.
+
+2.2. Configuration *choosy-configuration*
+
+  Choosy's default behavior can be configured via several global options:
+
+  *g:choosy_no_mappings* 
+    Set to `v:true` to prevent global mappings from being created
+    (|choosy-mappings|).
+
+  *g:choosy_no_nerdtree_mappings* 
+    Set to `v:true` to prevent NERDTree mappings from being created
+    (|choosy-nerdtree-mappings|).
+
+  *g:choosy_key_winnr*
+    Set to `v:true` to use the window number rather than a letter as the
+    activation key for each window (this obviously won't work well if you have
+    more than 9 open windows).
+
+  *g:choosy_color_popups*
+    Set to `v:true` to color each popup differently according to
+    |g:choosy_hilist|.
+
+  *g:choosy_hilist*
+    Set to a list of highlight groups to use for the text in each Choosy popup
+    window. If `has(gui)` is true, the default is a 12-color rainbow; if not,
+    it's a rather arbitrarily chosen list of existing highlight groups. See
+    `plugin/choosy.vim` for details.
+
+==============================================================================
+3. Choosy command                                             *choosy-command*
+
+  :Choosy [options]
+    Activate the window chooser and print a debug message
+    (|choosy-debug-info|) with information about the chosen window, buffer,
+    and options. This is useful for |choosy-substitutions|.  [options] are as
+    defined in |choosy-specific-options|, prepended by a `-`.
+
+
+  :Choosy [options] {command}
+    Activate the window chooser and run {command}. Substitutions will be
+    performed on `{}`-delimited parts of the string (|choosy-substitutions|).
+    [options] are as defined in |choosy-specific-options|, prepended by a `-`.
+
+
+  [options]
+
+    [options] are as defined in |choosy-specific-options|,
+    prepended by a `-`. When multiple values are needed, they are separated by a
+    `,`. An example of using options: >
+
+      :Choosy -skip_unlisted -skip_names NERD_tree*,toc.txt {win.winnr}wincmd w
+
+<
+==============================================================================
+4. Choosy choosewin function                       *choosy-choosewin-function*
+
+  The `choosewin` function can be used for more-complex operations than the
+  |choosy-command|. 
+
+                                                          *choosy#choosewin()*
+  choosy#choosewin([{callback}='' [, {opts}={} [, {popupopts}={}]]])
+    Invokes the window chooser.
+
+    If {callback} is empty, prints debug information about the chosen window
+    (|choosy-debug-info|).
+
+    If {callback} is provided, executes it when a window is chosen. {callback}
+    can take three forms:
+
+      1. A |Funcref| which accepts one argument, a |Dict| containing
+         |choosy-window-info|. Lambdas work here (|expr-lambda|).
+      2. A string with the name of a function, which accepts one argument, a
+         |Dict| containing |choosy-window-info|.
+      3. A string starting with `:` which contains an ex command to execute.
+         The string will be transformed before execution via
+         |choosy-substitutions|.
+
+    {opts} should be a |Dict| containing |choosy-specific-options| and
+    |choosy-action-options|. Options set here will override Choosy's defaults
+    as well as any set in |g:choosy_options|. Any entries not corresponding to
+    |choosy-specific-options| will be stored and passed to {callback} (if a
+    function) or used in |choosy-substitutions|.  Pass `{}` to leave
+    options untouched.
+
+    {popupopts} should be a |Dict| containing |choosy-popup-options|. Options
+    set here will override Choosy's defaults as well as any set in
+    |g:choosy_popup_options|.
+
+  See `ChoosySwap()` and its mappings in `plugin/choosy.vim` for an example of
+  using `choosy#choosewin()` with a function and |choosy-specific-options|.
+
+
+==============================================================================
+5. Options                                                    *choosy-options*
+
+  There are three kinds of options. First are options used by Choosy itself to
+  control its operation. Second are options that are stored and can be used by
+  user-defined actions. And third are options that Choosy uses to display
+  popup windows.
+
+5.1. Choosy-specific options                         *choosy-specific-options*
+
+  These options can be overriden globally via |g:choosy_options|. They can be
+  used in |choosy-command| with a `-` or passed in the {opts} argument to the
+  |choosy-choosewin-function|.
+
+  skip_unlisted~
+    Whether to skip unlisted buffers or not.
+
+    Default value: `v:false`
+
+  skip_names~
+    A list of patterns to be used with |match()|. A window containing a buffer
+    with a name that matches any of the patterns will not be included in the
+    possible windows to select.
+
+    Default value: `[]`
+
+  debug~
+    If true, print some extra debug messages. Helpful for seeing what the
+    actual command is that Choosy is executing.
+
+    Default value: `v:false`
+
+  key~
+    A |Funcref| that will be provided with a Dict of |choosy-variables|, that
+    returns a string representing the key that will activate the window
+    specified in the argument. See |popup-filter| for information about how to
+    format the string.
+
+    Default value: empty; starts list at 'A'
+
+    The following will use the window number instead of letters: >
+
+      let g:choosy_options = {'key': {info -> string(info.win.winnr)}}
+>
+
+5.2. Action options                                    *choosy-action-options*
+
+  These are options that can be included in the {opts} argument to the
+  |choosy-choosewin-function|, but that Choosy itself doesn't use. It will
+  simply store them and pass them on to the desired action. The buffer-swap
+  example in `plugin/choosy.vim` uses a `stay` option to determine whether the
+  cursor will stay in its current window or follow the buffer when it is
+  swapped to another window: >
+
+    nnoremap <silent> <Plug>(choosy-swap-stay) :call
+            \ choosy#choosewin('ChoosySwap', #{stay:v:true})<cr>
+<
+  This `stay` option will be available to the |choosy-function-callback|.
+
+
+5.3. Popup options                                      *choosy-popup-options*
+
+  These options can be overriden globally via |g:choosy_popup_options|. They
+  control the presentation of the popup windows used to prompt for window
+  selection. Any option usable with |popup_create()| can be used; the
+  defaults used by Choosy are briefly described here. See the
+  |popup_create-arguments| documentation for full details.
+
+  Arguments may be either literal values or |Funcref|s. If an argument is a
+  function, that function will be passed a Dict of |choosy-variables|, and is
+  expected to return a valid value for the given option. For example, assuming
+  the existence of a list of highlight groups `s:highlight`, the following
+  will use a different color for the text in the popup for every window: >
+
+    let g:choosy_popup_options = {'highlight': {info -> s:hilist[info.win.winnr-1]}}
+<
+  Note that these options can only be specified when using the
+  |choosy-choosewin-function|, not with the |choosy-command|.
+
+  highlight~
+    The highlight group to use for the text.
+
+    Default: `'ModeMsg'`
+
+  padding~
+    A list with padding for the inside of the popup: [above, right, below, left].
+    An empty list uses 1 for all values.
+
+    Default: `[1, 3, 1, 3]`
+
+  border~
+    A list specifying border presence, in the same order as padding. A `0`
+    indicates no border and any other value indicates a border. An empty list
+    means a border on all four sides.
+
+    Default: `[]`
+
+  borderhighlight~
+    A list of highlight group names for the border. A single entry is used for
+    all borders; otherwise provide four groups in the same order as for
+    the border.
+
+    Default: `['Question']`
+
+
+==============================================================================
+6. Choosy variables                                         *choosy-variables*
+
+  Choosy provides a set of variables associated with the chosen window to the
+  given action. These variables are stored in a |Dict| with the following
+  keys.
+
+    win~
+      A Dict containing information about the window, as retrieved from
+      |getwininfo()|. Particularly useful for actions are `win.winnr`, which
+      can be used with |:wincmd| and `win.winid` which can be used with
+      |win_execute()|. See |choosy-examples|.
+
+    buf~
+      A Dict containing information about the buffer currently displayed in
+      the chosen window, as retrieved from |getbufinfo()|. Particularly useful
+      is `buf.bufnr`. For an example, see `ChoosySwap()` in
+      `plugin/choosy.vim`.
+
+    opts~
+      A Dict containing the |choosy-specific-options| and
+      |choosy-action-options| used with this call to Choosy. Look at how the
+      `stay` action option is used with `ChoosySwap()` in
+      `<Plug>(choosy-swap-stay)` in `plugin/choosy.vim` for an example.
+
+
+6.1. Choosy substitutions                               *choosy-substitutions*
+
+  The above variables can be used in the |choosy-command| and with a string
+  beginning in `:` in a |choosy-choosewin-function|.
+
+  Choosy looks for parts of a string formatted like `{DDD.VVV}`; that is,
+  curly braces containing alphanumerics with a dot in the middle. The first
+  part (`DDD`) is the name of one of the Dict variables above
+  (|choosy-variables|) and the second part (`VVV`) is the name of one of the
+  entries of that Dict.
+
+  A special substitution is `{bar}`, which will be substituted with `|`. This
+  is useful to avoid excessive quoting in nested commands. As an example, the
+  following command maps `<leader>3` to splitting the chosen window into 3
+  parts: >
+
+    nnoremap <leader>3 :Choosy call win_execute({win.winid}, "sp {bar} sp")<cr>
+
+
+==============================================================================
+7. Debugging Choosy                                         *choosy-debugging*
+
+7.1. Debug info                                            *choosy-debug-info*
+
+  If no arguments are provided to the Choosy command, it will do nothing with
+  the chosen window. Instead, Choosy prints information about the window and
+  the buffer inside the window: >
+
+    :Choosy
+<
+
+  with the result something like this (formatted for the help file): >
+
+    Chose window: {
+      'buf': {
+        'lnum': 0,
+        'bufnr': 87,
+        'variables': {
+          'changedtick': 2,
+          'lastchangedtick': 2},
+        'popups': [],
+        'name': 'choosy.vim',
+        'changed': 0,
+        'loaded': 1,
+        'windows': [1135],
+        'hidden': 0,
+        'listed': 1,
+        'changedtick': 2},
+      'popid': 1137,
+      'win': {
+        'winnr': 2,
+        'botline': 1,
+        'height': 27,
+        'bufnr': 87,
+        'winbar': 0,
+        'width': 99,
+        'tabnr': 3,
+        'quickfix': 0,
+        'topline': 1,
+        'loclist': 0,
+        'wincol': 94,
+        'winrow': 2,
+        'winid': 1135,
+        'terminal': 0},
+      'opts': {
+        'skip_names': [],
+        'debug': v:false,
+        'skip_unlisted': v:false}}
+<
+
+  This useful debug info also gets stored in `g:choosy_wininfo`.
+
+==============================================================================
+8. Choosy licence                                             *choosy-licence*
+
+Author: Daniel Ashbrook <dan@danielashbrook.com>
+License: MIT License
+
+  Copyright (c) 2021 Daniel Ashbrook
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:fdm=marker:cole=2:
