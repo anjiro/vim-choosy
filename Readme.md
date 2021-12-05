@@ -56,11 +56,11 @@ Choosy popups more visible.
 Basic configuration:
 
 <center>
-  <img src="screenshots/choosy-basic.png" width="75%">
+  <img src="screenshots/choosy-basic.gif" width="75%">
 </center>
 
 With `g:choosy_color_popups` and `g:choosy_key_winnr` set:
 
 <center>
-  <img src="screenshots/choosy-winnr-colors.png" width="75%">
+  <img src="screenshots/choosy-winnr-colors.gif" width="75%">
 </center>
