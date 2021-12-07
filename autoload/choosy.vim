@@ -153,4 +153,4 @@ endfunction
 
 " }}}1
 
-" vim:fdm=marker fdl=0
+" vim:fdm=marker:fdl=0:ts=2
