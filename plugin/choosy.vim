@@ -110,4 +110,4 @@ if exists('g:NERDTree') && !get(g:, 'choosy_no_nerdtree_mappings', v:false)
 endif
 
 let g:loaded_choosy = 1
-" vim:fdm=marker fdl=0
+" vim:fdm=marker:fdl=0:ts=2
