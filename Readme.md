@@ -16,28 +16,33 @@ letter. Choosy closes all of the popups it opened and executes an action.
 What actions? Pretty much anything you like. Choosy comes with a number of
 example actions such as jumping to a window, splitting
 a window, closing a window, or swapping buffers between windows. But part of
-the power of Choosy is that you can easily set up your own actions - see
-the docs for full information.
+the power of Choosy is that you can easily set up your own actions. Here's an
+example call to Choosy that splits a selected window into 3 parts:
+
+    nnoremap <leader>3 :Choosy call win_execute({win.winid}, "sp {bar} sp")<cr>
+
+See [the docs](blob/main/doc/choosy.txt) for full information.
 
 ## Default mappings
 
-Choosy comes with a set of default mappings starting with `<leader>cw` ("choose
-window"):
+Choosy comes with a set of default mappings starting with `<leader>cw` ("<b>c</b>hoose
+<b>w</b>indow"):
 
-- `<leader>cwh`: split the chosen window horizontally
-- `<leader>cwv`: split the chosen window vertically
-- `<leader>cwc`: close the chosen window
-- `<leader>cws`: swap the buffers in this window and the chosen one, with the
+- `<leader>cwh`: split the chosen window <b>h</b>orizontally
+- `<leader>cwv`: split the chosen window <b>v</b>ertically
+- `<leader>cwc`: <b>c</b>lose the chosen window
+- `<leader>cws`: <b>s</b>wap the buffers in this window and the chosen one, with the
   cursor following this buffer
 - `<leader>cwS`: swap the buffers in this window and the chosen one, with the
-  cursor staying in the current window
+  cursor <b>S</b>taying in the current window
+- `<leader>cwD`: show this buffer in the chose window ("<b>D</b>uplicate")
 
 If NERDTree is installed, an additional set of mappings are available to
-open files from NERDTree in a chosen window. These start with `<leader>co` ("choose open"):
+open files from NERDTree in a chosen window. These start with `<leader>co` ("<b>c</b>hoose <b>o</b>pen"):
 
-- `<leader>cow`: open in the chosen window
-- `<leader>coh`: open in a horizontal split of the chosen window
-- `<leader>cov`: open in a vertical split of the chosen window   
+- `<leader>cow`: open in the chosen <b>w</b>indow
+- `<leader>coh`: open in a <b>h</b>orizontal split of the chosen window
+- `<leader>cov`: open in a <b>v</b>ertical split of the chosen window   
 
 # Installing
 
