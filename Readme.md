@@ -25,8 +25,8 @@ nnoremap <leader>3 :Choosy call win_execute({win.winid}, "sp {bar} sp")<cr>
 
 The `{win.winid}` gets replaced with the window ID of the window you chose, and
 the `{bar}` gets replacded with the `|` command separator. See [the
-docs](gdoc/choosy.txt) for full information, or
-[plugin/choosy.vim](gplugin/choosy.vim) for more examples.
+docs](doc/choosy.txt) for full information, or
+[plugin/choosy.vim](plugin/choosy.vim) for more examples.
 
 ## Default mappings
 
