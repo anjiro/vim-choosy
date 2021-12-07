@@ -23,7 +23,10 @@ example call to Choosy that splits a selected window into 3 parts:
 nnoremap <leader>3 :Choosy call win_execute({win.winid}, "sp {bar} sp")<cr>
 ```
 
-See [the docs](blob/main/doc/choosy.txt) for full information.
+The `{win.winid}` gets replaced with the window ID of the window you chose, and
+the `{bar}` gets replacded with the `|` command separator. See [the
+docs](blob/main/doc/choosy.txt) for full information, or
+[plugin/choosy.vim](blob/main/plugin/choosy.vim) for more examples.
 
 ## Default mappings
 
