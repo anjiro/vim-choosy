@@ -51,17 +51,24 @@ nnoremap <silent> <Plug>(choosy-vsplit) :Choosy call win_execute({win.winid}, "v
 "Close chosen window
 nnoremap <silent> <Plug>(choosy-close) :Choosy {win.winnr}wincmd c<cr>
 
+"'Duplicate' current buffer to another window and move to that window
+nnoremap <silent> <Plug>(choosy-duplicate-buffer) :Choosy {win.winnr}wincmd w {bar} buffer {srcbuf.bufnr}<cr>
+
+
 "Swap current and chosen window buffers {{{3
 function! ChoosySwap(vars) abort
-	let l:bufnr = bufnr()
 	execute "buffer " . a:vars.buf.bufnr
-	call win_execute(a:vars.win.winid, "buffer " . l:bufnr)
+	call win_execute(a:vars.win.winid, "buffer " . a:vars.srcbuf.bufnr)
 	if !get(a:vars.opts, 'stay', v:false)
 		execute a:vars.win.winnr . 'wincmd w'
 	endif
 endfunction
 nnoremap <silent> <Plug>(choosy-swap) :call choosy#choosewin('ChoosySwap')<cr>
 nnoremap <silent> <Plug>(choosy-swap-stay) :call choosy#choosewin('ChoosySwap', #{stay:v:true})<cr>
+
+"The swap functions can also be implemented without a function:
+"nnoremap <silent> <Plug>(choosy-swap) :Choosy buffer {buf.bufnr} {bar} {win.winnr}wincmd w {bar} buffer {srcbuf.bufnr}<cr>
+"nnoremap <silent> <Plug>(choosy-swap-stay) :Choosy buffer {buf.bufnr} {bar} call win_execute({win.winid}, "buffer {srcbuf.bufnr}")<cr>
 
 
 "Use Choosy with NERDTree {{{3
@@ -90,6 +97,7 @@ if !get(g:, 'choosy_no_mappings', v:false)
 	nmap <silent> <leader>cwc <Plug>(choosy-close)
 	nmap <silent> <leader>cws <Plug>(choosy-swap)
 	nmap <silent> <leader>cwS <Plug>(choosy-swap-stay)
+	nmap <silent> <leader>cwD <Plug>(choosy-duplicate-buffer)
 endif
 
 if exists('g:NERDTree') && !get(g:, 'choosy_no_nerdtree_mappings', v:false)

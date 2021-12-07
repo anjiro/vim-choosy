@@ -341,11 +341,19 @@ CONTENTS
       can be used with |:wincmd| and `win.winid` which can be used with
       |win_execute()|. See |choosy-examples|.
 
+    srcwin~
+      The same as `win` but with information about the source winodw; that is,
+      the window that the cursor was in when Choosy was invoked.
+
     buf~
       A Dict containing information about the buffer currently displayed in
       the chosen window, as retrieved from |getbufinfo()|. Particularly useful
       is `buf.bufnr`. For an example, see `ChoosySwap()` in
       `plugin/choosy.vim`.
+
+    srcbuf~
+      The same as `buf` but with information about the source buffer; that is,
+      the buffer that the cursor was in when Choosy was invoked.
 
     opts~
       A Dict containing the |choosy-specific-options| and

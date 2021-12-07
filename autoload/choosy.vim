@@ -59,6 +59,9 @@ function! choosy#choosewin(callback='', opts={}, popup_opts={}) abort " {{{1
 
 	call s:debug('choosewin() callback arg: ' . s:callback, l:opts.debug)
 
+	let l:srcwin = getwininfo(win_getid())[0]
+	let l:srcbuf = getbufinfo(bufnr())[0]
+
 	let l:i = 0
 	for l:win in filter(getwininfo(), {_,w ->
 				\ w.tabnr == tabpagenr() && 
@@ -73,9 +76,11 @@ function! choosy#choosewin(callback='', opts={}, popup_opts={}) abort " {{{1
 		if l:skip | continue | endif
 
     let l:info = #{
-					\ win:   l:win,
-					\ buf:   l:buf,
-					\ opts:  l:opts,
+					\ win:    l:win,
+					\ buf:    l:buf,
+					\ srcwin: l:srcwin,
+					\ srcbuf: l:srcbuf,
+					\ opts:   l:opts,
 					\ }
 
     "Calculate size: padding and border are above/right/below/left 
