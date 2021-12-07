@@ -19,7 +19,9 @@ a window, closing a window, or swapping buffers between windows. But part of
 the power of Choosy is that you can easily set up your own actions. Here's an
 example call to Choosy that splits a selected window into 3 parts:
 
-    nnoremap <leader>3 :Choosy call win_execute({win.winid}, "sp {bar} sp")<cr>
+```vim
+nnoremap <leader>3 :Choosy call win_execute({win.winid}, "sp {bar} sp")<cr>
+```
 
 See [the docs](blob/main/doc/choosy.txt) for full information.
 
@@ -51,7 +53,12 @@ and optional function arguments.
 
 Choosy has not been tested on versions < 8.1 (patch 2110), nor on nvim.
 
-To install, use your package manager of choice.
+To install, use your package manager of choice. For example, with
+[vim-plug](https://github.com/junegunn/vim-plug) add to your `vimrc`:
+
+```vim
+Plug 'anjiro/vim-choosy'
+```
 
 # Screenshots
 
