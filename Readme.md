@@ -70,12 +70,8 @@ Choosy popups more visible.
 
 Basic configuration:
 
-<center>
-  <img src="screenshots/choosy-basic.gif" width="75%">
-</center>
+![Basic screenshot](screenshots/choosy-basic.gif)
 
 With `g:choosy_color_popups` and `g:choosy_key_winnr` set:
 
-<center>
-  <img src="screenshots/choosy-winnr-colors.gif" width="75%">
-</center>
+![Fancy screenshot](screenshots/choosy-winnr-colors.gif)
