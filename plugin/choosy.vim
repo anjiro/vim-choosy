@@ -42,7 +42,7 @@ endif
 
 " {{{2 <Plug> mappings
 "Switch to chosen window
-nnoremap <Plug>(choosy-switch) :Choosy {win.winnr}wincmd w<cr>
+nnoremap <silent> <Plug>(choosy-switch) :Choosy {win.winnr}wincmd w<cr>
 
 "Split chosen window horizontally or vertically
 nnoremap <silent> <Plug>(choosy-hsplit) :Choosy call win_execute({win.winid}, "sp")<cr>
