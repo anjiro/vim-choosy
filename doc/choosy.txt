@@ -45,6 +45,21 @@ CONTENTS
   (|choosy-customizing|).
 
 
+1.2. Terminology
+
+  To avoid confusion, this documentation uses the following terms:
+
+    source window~
+    source buffer~
+      The location of the cursor when Choosy is invoked: a window with a
+      buffer in it.
+
+    target window~
+    target buffer~
+      The window that is chosen by a keypress after Choosy is invoked, and the
+      buffer that is displayed in that window.
+
+
 1.2. Requirements                                        *choosy-requirements*
 
   Choosy requires a recent Vim which supports popup windows (|popup_create|)
@@ -70,8 +85,8 @@ CONTENTS
     h    Split horizontally
     v    Split vertically
     c    Close window
-    s    Swap buffers, cursor follows current buffer
-    S    Swap buffers, cursor stays in current window
+    s    Swap buffers, cursor follows source buffer to target window
+    S    Swap buffers, cursor stays in source window
 <
   These are defined in `plugin/choosy.vim` as follows: >
 
@@ -88,7 +103,7 @@ CONTENTS
 1.4. NERDTree mappings                              *choosy-nerdtree-mappings*
 
   If NERDTree is installed, an additional set of mappings are available to
-  open files from NERDTree in a chosen window. To disable them, set
+  open files from NERDTree in the target window. To disable them, set
   `g:choosy_no_nerdtree_mappings` to `v:true`: >
 
     let g:choosy_no_nerdtree_mappings = v:true
@@ -97,16 +112,16 @@ CONTENTS
   The mappings are enabled only in the NERDTree window, and start with
   <leader>co ("choose open") followed by one of: >
 
-    w    Open in the chosen window
-    h    Open in a horizontal split of the chosen window
-    v    Open in a vertical split of the chosen window
+    w    Open selected file in the target window
+    h    Open selected file in a horizontal split of the target window
+    v    Open selected file in a vertical split of the target window
 <
 
 ==============================================================================
 2. Usage                                                        *choosy-usage*
 
   The basic idea behind using Choosy is that you define an action to take on a
-  chosen window. When you invoke Choosy, you tell it what action to do, and it
+  targeted window. When you invoke Choosy, you tell it what action to do, and it
   in executes that action, providing it with data about the selected window.
   Let's look at some examples.
 
@@ -124,8 +139,8 @@ CONTENTS
   simple text-substitution format that allow the command to know which window
   was picked. See |choosy-variables| for a full list.
 
-  Another simple example splits the chosen window without switching away from
-  the current one: >
+  Another simple example splits the target window without switching away from
+  the source window >
 
     nnoremap <silent> <plug>(choosy-hsplit) :Choosy call win_execute({win.winid}, "sp")<cr>
 <
@@ -164,9 +179,9 @@ CONTENTS
 
   :Choosy [options]
     Activate the window chooser and print a debug message
-    (|choosy-debug-info|) with information about the chosen window, buffer,
-    and options. This is useful for |choosy-substitutions|.  [options] are as
-    defined in |choosy-specific-options|, prepended by a `-`.
+    (|choosy-debug-info|) with information about the source/target windows
+    and buffers, and options. This is useful for |choosy-substitutions|.
+    [options] are as defined in |choosy-specific-options|, prepended by a `-`.
 
 
   :Choosy [options] {command}
@@ -194,10 +209,10 @@ CONTENTS
   choosy#choosewin([{callback}='' [, {opts}={} [, {popupopts}={}]]])
     Invokes the window chooser.
 
-    If {callback} is empty, prints debug information about the chosen window
+    If {callback} is empty, prints debug information about the target window
     (|choosy-debug-info|).
 
-    If {callback} is provided, executes it when a window is chosen. {callback}
+    If {callback} is provided, executes it when a window is selected. {callback}
     can take three forms:
 
       1. A |Funcref| which accepts one argument, a |Dict| containing
@@ -239,6 +254,11 @@ CONTENTS
 
   skip_unlisted~
     Whether to skip unlisted buffers or not.
+
+    Default value: `v:false`
+
+  include_self~
+    Whether to include the source window as a possible selection.
 
     Default value: `v:false`
 
@@ -331,7 +351,7 @@ CONTENTS
 ==============================================================================
 6. Choosy variables                                         *choosy-variables*
 
-  Choosy provides a set of variables associated with the chosen window to the
+  Choosy provides a set of variables associated with the target window to the
   given action. These variables are stored in a |Dict| with the following
   keys.
 
@@ -347,7 +367,7 @@ CONTENTS
 
     buf~
       A Dict containing information about the buffer currently displayed in
-      the chosen window, as retrieved from |getbufinfo()|. Particularly useful
+      the target window, as retrieved from |getbufinfo()|. Particularly useful
       is `buf.bufnr`. For an example, see `ChoosySwap()` in
       `plugin/choosy.vim`.
 
@@ -375,7 +395,7 @@ CONTENTS
 
   A special substitution is `{bar}`, which will be substituted with `|`. This
   is useful to avoid excessive quoting in nested commands. As an example, the
-  following command maps `<leader>3` to splitting the chosen window into 3
+  following command maps `<leader>3` to splitting the target window into 3
   parts: >
 
     nnoremap <leader>3 :Choosy call win_execute({win.winid}, "sp {bar} sp")<cr>
@@ -387,7 +407,7 @@ CONTENTS
 7.1. Debug info                                            *choosy-debug-info*
 
   If no arguments are provided to the Choosy command, it will do nothing with
-  the chosen window. Instead, Choosy prints information about the window and
+  the target window. Instead, Choosy prints information about the window and
   the buffer inside the window: >
 
     :Choosy
