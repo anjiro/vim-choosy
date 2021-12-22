@@ -82,6 +82,7 @@ if exists('g:NERDTree')
 					\ l:cmd . ' ' . l:node.path.str({'format': 'Edit'}))
 
 		if nerdtree#closeTreeOnOpen() | call g:NERDTree.Close() | endif
+		call win_gotoid(a:vars.win.winid)
 	endfunction
 	nnoremap <silent> <Plug>(choosy-nerdtree-open)  :call choosy#choosewin('ChoosyNERDTree')<cr>
 	nnoremap <silent> <Plug>(choosy-nerdtree-hopen) :call choosy#choosewin('ChoosyNERDTree', #{cmd:'sp'})<cr>
