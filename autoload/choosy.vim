@@ -134,6 +134,9 @@ function! choosy#choosewin_filter(winid, key) abort " {{{1
 		else
 			echom "Can't call variable of type" type(s:callback) "(see :h type)"
 		endif
+	else
+		call s:debug("popup closed because of key " . a:key, get(g:, 'choosy_options', s:default_opts).debug)
+		let g:choosy_close_key = a:key
 	endif
 	return v:true
 endfunction
