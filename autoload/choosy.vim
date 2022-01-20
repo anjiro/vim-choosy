@@ -104,8 +104,8 @@ endfunction
 
 " }}}1
 function! choosy#choosewin_filter(winid, key) abort " {{{1
-	"Fix vim/vim/issues/6424 (mouse movement) if unpatched
-	if a:key ==# "\x80\xfd\d" | return v:false | endif  
+	"Fix non-keypress events closing the popups (see e.g., vim/vim/issues/6424)
+	if len(a:key) ==# 3 | return v:false | endif
 
 	"Close popups first
 	for l:popinfo in values(s:popups)
